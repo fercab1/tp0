@@ -26,18 +26,18 @@ int main(void)
 	valor = config_get_string_value(config, "CLAVE");
 	ip = config_get_string_value(config, "IP");
 	puerto = config_get_string_value(config, "PUERTO");
-	log_info(logger, valor);
-	log_info(logger, ip);
-	log_info(logger, puerto);
 	// Usando el config creado previamente, leemos los valores del config y los 
 	// dejamos en las variables 'ip', 'puerto' y 'valor'
 
 	// Loggeamos el valor de config
+	log_info(logger, valor);
+	log_info(logger, ip);
+	log_info(logger, puerto);
 
 
 	/* ---------------- LEER DE CONSOLA ---------------- */
 
-	leer_consola(logger);
+	// leer_consola(logger);
 
 	/*---------------------------------------------------PARTE 3-------------------------------------------------------------*/
 
@@ -50,7 +50,9 @@ int main(void)
 	enviar_mensaje(valor, conexion);
 
 	// Armamos y enviamos el paquete
-	paquete(conexion);
+	t_paquete* paquete1 = paquete(conexion);
+	enviar_paquete(paquete1, conexion);
+	eliminar_paquete(paquete1);
 
 	terminar_programa(conexion, logger, config);
 
@@ -90,22 +92,30 @@ void leer_consola(t_log* logger)
 
 }
 
-void paquete(int conexion)
+t_paquete* paquete(int conexion)
 {
 	// Ahora toca lo divertido!
-	char* leido;
-	t_paquete* paquete;
+	char* leido = NULL;
+	t_paquete* paquete = crear_paquete();
 
 	// Leemos y esta vez agregamos las lineas al paquete
 	leido = readline("> ");
-	while(strcmp(leido, "")){
-		agregar_a_paquete(paquete,leido, strlen(leido+1));
+	while(strcmp(leido, "")!= 0){
+		agregar_a_paquete(paquete,leido, strlen(leido)+1);
 		leido = readline("> ");
 	}
+	free(leido);
+	return paquete;
 
+	/*
 	// ¡No te olvides de liberar las líneas y el paquete antes de regresar!
-	liberar_conexion(conexion);
+	free(leido);
+	//ENVIO PAQUETE
+	enviar_paquete(paquete, conexion);
+	
+	//ELIMINO PAQUETE
 	eliminar_paquete(paquete);
+	*/
 }
 
 void terminar_programa(int conexion, t_log* logger, t_config* config)
